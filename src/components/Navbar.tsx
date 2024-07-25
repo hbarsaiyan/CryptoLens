@@ -17,7 +17,7 @@ const Navbar = () => {
       <div className="flex items-center max-w-6xl mx-auto p-5 justify-between w-screen">
         <Link href={'/'}>
           <h1 className="md:text-3xl text-2xl font-bold">
-            Crypto<span className="text-green-500">Lens</span>
+            Crypto<span className="text-blue-500">Lens</span>
           </h1>
         </Link>
         <div className="flex items-center gap-2">

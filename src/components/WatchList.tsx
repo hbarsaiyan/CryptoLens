@@ -128,7 +128,7 @@ const Watchlist: React.FC = () => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <p className="mt-4 text-muted-foreground">
+                  <p className="mt-10 text-muted-foreground">
                     Your watchlist is currently empty. Add coins to your
                     watchlist by dragging and dropping them here.
                   </p>
