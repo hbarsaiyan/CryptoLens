@@ -1,0 +1,145 @@
+'use client';
+import { Coin, useWatchlistStore } from '@/lib/store';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import React from 'react';
+import { useDrop } from 'react-dnd';
+import CoinRow from './CoinRow';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table';
+
+export const columns: ColumnDef<Coin>[] = [
+  {
+    accessorKey: 'name',
+    header: () => <div className="text-right">Coin</div>,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <img
+          src={row.original.small}
+          alt={row.original.name}
+          className="h-6 w-6 rounded-full"
+        />
+        {row.original.symbol}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'price',
+    header: () => <div className="text-right">Price</div>,
+    cell: ({ row }) => {
+      const price = row.original.data.price;
+
+      // Format the price as a dollar amount
+      const formatted = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2,
+      }).format(price);
+
+      return <div className="text-right font-medium">{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: 'market_cap',
+    header: () => <div className="text-right">Market Cap</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="text-right font-medium">
+          {row.original.data.market_cap}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: 'total_volume',
+    header: () => <div className="text-right">Total Volume</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="text-right font-medium">
+          {row.original.data.total_volume}
+        </div>
+      );
+    },
+  },
+];
+
+const Watchlist: React.FC = () => {
+  const { watchlist, addToWatchlist } = useWatchlistStore();
+  const table = useReactTable({
+    data: watchlist,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const [, drop] = useDrop(() => ({
+    accept: 'COIN',
+    drop: (item: { coin: Coin }) => {},
+  }));
+  // ref={drop as unknown as React.RefObject<HTMLDivElement>}
+  return (
+    <div
+      className="max-w-[320px] sm:max-w-md h-[370px] sm:-mt-5 w-full"
+      ref={drop as unknown as React.RefObject<HTMLDivElement>}
+    >
+      <h1 className="text-lg font-semibold">Watch List</h1>
+      <div className="rounded-md border h-full overflow-y-scroll no-scrollbar">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table
+                .getRowModel()
+                .rows.map((row) => (
+                  <CoinRow
+                    row={row}
+                    coin={row.original}
+                    addToWatchlist={addToWatchlist}
+                    key={row.id}
+                  />
+                ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <p className="mt-4 text-muted-foreground">
+                    Your watchlist is currently empty. Add coins to your
+                    watchlist by dragging and dropping them here.
+                  </p>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+export default Watchlist;
